@@ -73,9 +73,12 @@ def _result(qid):
         d['qid'] = qid
         if result.status == Status.Done:
             equery = ExpandedQuery.get_by_id(result.equery)
-            tweets = set(random.sample(equery.basic_results, 4))
-            tweets.update(random.sample(equery.hashtag_results, 6))
-            tweets.update(random.sample(equery.keyword_results, 6))
+            tweets = set(random.sample(equery.basic_results,
+                                       min(4, len(equery.basic_results))))
+            tweets.update(random.sample(equery.hashtag_results,
+                                        min(6, len(equery.hashtag_results))))
+            tweets.update(random.sample(equery.keyword_results,
+                                        min(6, len(equery.keyword_results))))
             d['status_ids'] = [str(t) for t in tweets]
             d['expanded_query'] = equery.to_dict()
         return d
