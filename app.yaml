@@ -12,9 +12,20 @@ handlers:
   static_files: index.html
   upload: index.html
 
+- url: /admin/.*
+  script: google.appengine.ext.admin.application
+  login: admin
+
+- url: /queue/.*
+  script: main.app
+  login: admin
+
 - url: /.*
   script: main.app
 
 libraries:
+- name: ssl
+  version: latest
+
 - name: webapp2
   version: latest
