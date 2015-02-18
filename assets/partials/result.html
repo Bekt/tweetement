@@ -1,5 +1,6 @@
 <div>
-    {{ title }} <br/>
-    ID: {{ rid }} <br/>
+    <p>qid: {{ qid }} </p>
+    <p>Query: {{ data.query }}</p>
+    <div tw-status ng-repeat="sid in data.status_ids" sid="{{ sid }}" align="center"></div>
     <pre>{{ data | json }}</pre>
 </div>

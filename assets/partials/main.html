@@ -1,4 +1,9 @@
 <div>
+    <p class="lead">
+        Twitter lets users search by keywords only. Users oftentimes want to
+        see similar tweets in their results. Tweetement tries to solve this problem
+        by expanding your query and showing relevant tweets.
+    </p>
     <form class="form-horizontal" ng-submit="enqueue(req)" ng-model="req">
       <div class="form-group">
         <label for="query" class="col-md-2 control-label">Query</label>
@@ -8,26 +13,10 @@
         </div>
       </div>
       <div class="form-group">
-        <label for="start" class="col-md-2 control-label">Start Date</label>
-        <div class="col-md-10">
-          <input type="date" id="start" class="form-control"
-                 min="2008-01-01" max="2015-01-01"
-                 placeholder="Ex: 1/1/2014" ng-model="req.start">
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="end" class="col-md-2 control-label">End Date</label>
-        <div class="col-md-10">
-          <input type="date" id="end" class="form-control"
-                 min="2008-01-01" max="2015-01-01"
-                 placeholder="Ex: 3/1/2014" ng-model="req.end">
-        </div>
-      </div>
-      <div class="form-group">
         <label for="email" class="col-md-2 control-label">Email</label>
         <div class="col-md-10">
           <input type="email" id="email" class="form-control"
-                 placeholder="name@domain.com" ng-model="req.email">
+                 placeholder="name@example.com" ng-model="req.email">
           <p class="help-block">
               Optional. If provided, an email will be sent when the results are ready.
           </p>
@@ -36,15 +25,14 @@
       <div class="form-group">
         <div class="col-md-offset-2 col-md-10">
           <button type="submit" class="btn btn-primary btn-lg"
-                  ng-disabled="!req.query">Get Sentiments</button>
+                  ng-disabled="!req.query || req.query.length < 3">Expanded Search</button>
         </div>
       </div>
     </form>
     <div class="alert alert-success" ng-if="success">
-        You request has been submitted. ID: <a ui-sref="result({ rid: rid })"><b>{{ rid }}</b></a>
+        You request has been submitted. ID: <a ui-sref="result({ qid: qid })"><b>{{ qid }}</b></a>
     </div>
     <div class="alert alert-danger" ng-if="error">
         {{ error }}
     </div>
-
 </div>
