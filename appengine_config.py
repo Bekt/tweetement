@@ -3,6 +3,7 @@ import os.path
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
+sys.path.append(os.path.join(os.path.dirname(__file__), 'lib/pip'))
 
 # Workaround the dev-environment SSL:
 #   http://stackoverflow.com/q/16192916/893652

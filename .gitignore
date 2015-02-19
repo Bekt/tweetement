@@ -1,5 +1,5 @@
 *.py[co]
 *.DS_Store
 .idea/
-lib/
+lib/pip/
 /credentials.py

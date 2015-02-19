@@ -13,7 +13,7 @@ Live: http://tweetement.com/ (or http://tweetement0.appspot.com/)
 ```bash
 git clone git@github.com:Bekt/tweetement.git
 cd tweetement
-pip install -t lib/ -r requirements.txt
+pip install -t lib/pip/ -r requirements.txt
 ```
 
 ### Get Twitter Access Tokens

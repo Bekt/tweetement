@@ -1,2 +1,4 @@
 requests
 tweepy
+httplib2
+oauth2
