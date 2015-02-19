@@ -8,10 +8,6 @@ handlers:
 - url: /assets
   static_dir: assets
 
-- url: /
-  static_files: index.html
-  upload: index.html
-
 - url: /admin/.*
   script: google.appengine.ext.admin.application
   login: admin
@@ -24,6 +20,9 @@ handlers:
   script: main.app
 
 libraries:
+- name: jinja2
+  version: latest
+
 - name: ssl
   version: latest
 

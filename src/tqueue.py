@@ -1,5 +1,5 @@
 import logging
-from service import service
+import service
 import webapp2
 
 from models import (Query, ExpandedQuery, Status)
@@ -10,6 +10,8 @@ class QueueHandler(webapp2.RequestHandler):
     def pop(self):
         """Pops a query from the queue and performs query expansion."""
         qid = int(self.request.get('qid'))
+        auth_info = (self.request.get('oauth_token'),
+                     self.request.get('oauth_token_secret'))
         result = Query.get_by_id(qid)
         if not result or result.status != Status.Pending:
             logging.warning('Query not pending. qid={}'.format(qid))
@@ -22,7 +24,7 @@ class QueueHandler(webapp2.RequestHandler):
         result.status = Status.Working
         result.put()
         try:
-            expand_query(qid)
+            expand_query(qid, auth_info)
             result.status = Status.Done
         except Exception as e:
             logging.exception(e.message)
@@ -32,22 +34,23 @@ class QueueHandler(webapp2.RequestHandler):
             result.put()
 
 
-def expand_query(qid):
+def expand_query(qid, auth_info):
     """Expand the given query.
 
     TODO(kanat): Clean this shit up.
     """
     result = Query.get_by_id(qid)
-    basic_results = service.fetch(result.query, limit=100)
+    serv = service.Service(auth_info[0], auth_info[1])
+    basic_results = serv.fetch(result.query, limit=100)
 
-    hashtags = service.top_hashtags(basic_results, limit=2)
-    keywords = service.top_keywords(basic_results, limit=2)
+    hashtags = serv.top_hashtags(basic_results, limit=2)
+    keywords = serv.top_keywords(basic_results, limit=2)
 
-    h1 = service.fetch(hashtags[0], limit=4)
-    h2 = service.fetch(hashtags[1], limit=4)
+    h1 = serv.fetch(hashtags[0], limit=4)
+    h2 = serv.fetch(hashtags[1], limit=4)
 
-    k1 = service.fetch(keywords[0], limit=4)
-    k2 = service.fetch(keywords[1], limit=4)
+    k1 = serv.fetch(keywords[0], limit=4)
+    k2 = serv.fetch(keywords[1], limit=4)
 
     equery = ExpandedQuery.get_by_id(result.equery)
     equery.hashtags = hashtags
