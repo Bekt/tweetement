@@ -15,8 +15,13 @@
   <div class="container">
     <div class="row">
       <div class="col-md-12">
-          <h2>Tweetement</h2>
-          <div ui-view></div>
+
+          {% if user %}
+            <h2>Tweetement <small>@{{ user.name }} - <a href="/logout">Log out</a></small></h2>
+            <div ui-view></div>
+          {% else %}
+            {% include "welcome.html" %}
+          {% endif %}
 
       </div>
     </div>
