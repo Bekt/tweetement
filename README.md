@@ -16,7 +16,7 @@ cd tweetement
 pip install -t lib/pip/ -r requirements.txt
 ```
 
-### Get Twitter Access Tokens
+### Update Credentials
 * Follow instructions in `credentials.txt`.
 
 ### Run Locally
