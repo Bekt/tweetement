@@ -2,8 +2,8 @@ import json
 import logging
 import random
 import re
-import webapp2
 
+from auth_controller import BaseRequestHandler
 from models import (Query, ExpandedQuery, Status)
 from datetime import datetime
 from google.appengine.api import taskqueue
@@ -13,7 +13,7 @@ from protorpc import messages
 EMAIL_RE = re.compile(r'[^@]+@[^@]+\.[^@]+')
 
 
-class ApiHandler(webapp2.RequestHandler):
+class ApiHandler(BaseRequestHandler):
     """Request handler methods. Expects and returns JSON objects."""
 
     def echo(self):
@@ -34,7 +34,7 @@ class ApiHandler(webapp2.RequestHandler):
             self.write_error('Please specify a valid email.')
             return
         logging.info('Enqueue: {}'.format(query))
-        result = _enqueue(query=query, email=email)
+        result = _enqueue(self.auth_info, query=query, email=email)
         self.write({'qid': result.key.id()})
 
     def result(self):
@@ -59,10 +59,17 @@ class ApiHandler(webapp2.RequestHandler):
         self.write({'error': reason}, status=400)
 
 
-def _enqueue(**kwargs):
+def _enqueue(auth_info, **kwargs):
+    token, token_secret = ((auth_info['oauth_token'],
+                           auth_info['oauth_token_secret'])
+                           if auth_info is not None else ('', ''))
     result = Query(**kwargs)
     result.put()
-    taskqueue.add(url='/queue/pop', params={'qid': result.key.id()})
+    taskqueue.add(url='/queue/pop', params={
+        'qid': result.key.id(),
+        'oauth_token': token,
+        'oauth_token_secret': token_secret,
+    })
     return result
 
 

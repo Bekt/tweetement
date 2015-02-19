@@ -1,10 +1,7 @@
 import string
 import tweepy
 
-from credentials import (
-    consumer_key, consumer_secret,
-    access_token, access_token_secret
-)
+from credentials import (consumer_key, consumer_secret)
 from models import Stopword
 from collections import Counter
 
@@ -16,15 +13,17 @@ class Service(object):
              for i in range(26)}
     trans.update({ord(c): None for c in string.punctuation + string.digits})
 
-    def __init__(self):
+    def __init__(self, access_token='', access_token_secret=''):
         self._tw_api = None
+        self._access_token = access_token
+        self._access_token_secret = access_token_secret
 
     @property
     def tw_api(self):
         """Tweepy API client."""
         if self._tw_api is None:
             auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-            auth.set_access_token(access_token, access_token_secret)
+            auth.set_access_token(self._access_token, self._access_token_secret)
             self._tw_api = tweepy.API(auth)
         return self._tw_api
 
@@ -73,6 +72,3 @@ def _token_okay(text):
     if len(text) < 3 or Stopword.gql('WHERE token = :1', text).get() is not None:
         return False
     return True
-
-
-service = Service()
