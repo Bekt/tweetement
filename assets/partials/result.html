@@ -1,6 +1,31 @@
 <div>
-    <p>qid: {{ qid }} </p>
-    <p>Query: {{ data.query }}</p>
-    <div tw-status ng-repeat="sid in data.status_ids" sid="{{ sid }}" align="center"></div>
-    <pre>{{ data | json }}</pre>
+    <h3><span class="text-muted">Results for</span> "{{ data.query }}"</h3>
+    <p class="lead">
+        Please provide your feedback on how relevant the following tweets are to the query. <br/>
+        Note that the order of the results are in random order.
+    </p>
+    <div ng-repeat="sid in data.status_ids" id="status-{{ sid }}">
+        <hr/>
+        <div class="row">
+            <div class="col-md-8" tw-status sid="{{ sid }}" align="right"></div>
+            <div class="col-md-4 scores" >
+                <ul class="list-unstyled">
+                    <li>
+                        <button class="btn btn-success" ng-click="feedback(qid, sid, 1)"
+                                ng-disabled="scores[sid] == 1">Relevant</button>
+                    </li>
+                    <li>
+                        <button class="btn btn-default" ng-click="feedback(qid, sid, 0)"
+                                ng-disabled="scores[sid] == 0">Neutral</button>
+                    </li>
+                    <li>
+                        <button class="btn btn-warning" ng-click="feedback(qid, sid, -1)"
+                                ng-disabled="scores[sid] == -1">Irrelevant</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <pre ng-if="data.status != 'Done'">{{ data | json }}</pre>
 </div>

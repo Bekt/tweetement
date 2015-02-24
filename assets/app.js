@@ -42,8 +42,18 @@ angular
                     {
                         cards: 'hidden',
                         conversation: 'none',
+                        omit_script: true,
                         dnt: true,
                         width: 500
+                    })
+                    .then(function (elem) {
+                        if (!elem) {
+                            var e = document.getElementById('status-' + scope.sid);
+                            if (e) {
+                                e.style.display = 'none';
+                                console.log('status ' + scope.sid + ' is not available.');
+                            }
+                        }
                     });
             }
         }
@@ -93,17 +103,39 @@ angular
  */
 angular
     .module('Tweetement')
-    .controller('ResultCtrl', ['$scope', '$http', '$stateParams',
-    function ($scope, $http, $stateParams) {
+    .controller('ResultCtrl', ['$scope', '$http', '$stateParams', '$timeout',
+    function ($scope, $http, $stateParams, $timeout) {
         $scope.qid = $stateParams.qid;
+        $scope.scores = {};
 
-        var init = function (qid) {
+        var init = function () {
+            getResults($scope.qid);
+            getScores($scope.qid);
+        };
+
+        $scope.feedback = function (qid, sid, score) {
+            $scope.scores[sid] = score;
+            $http.post('/api/feedback', {qid: qid, sid: sid, score: score})
+                .success(function (data, status) {
+                    // Yay.
+                })
+                .error(function (data, status) {
+                    $scope.scores[sid] = undefined;
+                });
+        };
+
+        var getResults = function (qid) {
             $scope.$parent.loading = true;
 
             $http.get('/api/result', {params: {qid: qid}})
                 .success(function (data, status) {
                     $scope.$parent.loading = false;
                     $scope.data = data;
+                    if (data.status == 'Working') {
+                        $timeout(function () {
+                            getResults(qid);
+                        }, 4000);
+                    }
                 })
                 .error(function (data, status) {
                     $scope.$parent.loading = false;
@@ -111,5 +143,18 @@ angular
                 });
         };
 
-        init($scope.qid);
+        var getScores = function (qid) {
+            $http.get('/api/scores', {params: {qid: qid}})
+                .success(function (data, status) {
+                    console.log(data);
+                    angular.forEach(data['items'], function (v) {
+                        $scope.scores[v.sid] = v.score;
+                    });
+                })
+                .error(function (data, status) {
+                    console.log(data);
+                });
+        };
+
+        init();
     }]);
