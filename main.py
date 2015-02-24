@@ -14,15 +14,18 @@ config = {
 
 app = webapp2.WSGIApplication([
     webapp2.Route(r'/api/echo', name='echo', methods=['GET'],
-                 handler='api_controller.ApiHandler:echo'),
+                  handler='api_controller.ApiHandler:echo'),
     webapp2.Route(r'/api/enqueue', name='enqueue', methods=['POST'],
-                 handler='api_controller.ApiHandler:enqueue'),
+                  handler='api_controller.ApiHandler:enqueue'),
     webapp2.Route(r'/api/result', name='result', methods=['GET'],
-                 handler='api_controller.ApiHandler:result'),
+                  handler='api_controller.ApiHandler:result'),
+    webapp2.Route(r'/api/feedback', name='feedback', methods=['POST'],
+                  handler='api_controller.ApiHandler:feedback'),
+    webapp2.Route(r'/api/scores', name='scores', methods=['GET'],
+                  handler='api_controller.ApiHandler:scores'),
 
     webapp2.Route(r'/queue/pop', name='pop', methods=['POST'],
-                 handler='tqueue.QueueHandler:pop'),
-
+                  handler='tqueue.QueueHandler:pop'),
 
     webapp2.Route('/', name='home', methods=['GET'],
                   handler='auth_controller.PageHandler:index'),

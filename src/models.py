@@ -23,6 +23,7 @@ class Query(ndb.Model):
 
 
 class ExpandedQuery(ndb.Model):
+    """Expanded queries."""
     qid = ndb.IntegerProperty()
     # Tweet IDs from the original query.
     basic_results = ndb.IntegerProperty(repeated=True, indexed=False)
@@ -36,3 +37,11 @@ class ExpandedQuery(ndb.Model):
 
 class Stopword(ndb.Model):
     token = ndb.StringProperty()
+
+
+class Feedback(ndb.Model):
+    """Feedback for a particular query. 1: relevant, 0: neutral 1: irrelevant"""
+    qid = ndb.IntegerProperty()
+    uid = ndb.IntegerProperty()
+    sid = ndb.IntegerProperty()
+    score = ndb.IntegerProperty(indexed=False, choices=[-1, 0, 1])
