@@ -1,38 +1,49 @@
 <div>
     <p class="lead">
-        Twitter lets users search by keywords only. Users oftentimes want to
-        see similar tweets in their results. Tweetement tries to solve this problem
-        by expanding your query and showing relevant tweets.
+        Provide a keyword or topic you would like to search for. We will try to
+        show relevant tweets for your query.
     </p>
     <form class="form-horizontal" ng-submit="enqueue(req)" ng-model="req">
       <div class="form-group">
-        <label for="query" class="col-md-2 control-label">Query</label>
-        <div class="col-md-10">
+        <label for="query" class="col-md-2 col-lg-2 control-label">Query</label>
+        <div class="col-md-6 col-lg-8">
           <input type="text" id="query" class="form-control"
-                 placeholder="Keyword or topic. Ex: pepsi" ng-model="req.query">
+                 placeholder="Keyword or topic" ng-model="req.query" tabindex="1">
+          <p class="help-block">
+              Examples:
+              <a ui-sref="result({ qid: 5685265389584384 })">Lebron</a>,
+              <a ui-sref="result({ qid: 6549888208732160 })">Amber Rose</a>,
+              or <a ui-sref="result({ qid: 4861231353561088 })">Seahawks</a>
+          </p>
         </div>
+        <div class="col-md-4 col-lg-2"></div>
       </div>
       <div class="form-group">
-        <label for="email" class="col-md-2 control-label">Email</label>
-        <div class="col-md-10">
+        <label for="email" class="col-md-2 col-lg-2 control-label">Email</label>
+        <div class="col-md-6 col-lg-8">
           <input type="email" id="email" class="form-control"
-                 placeholder="name@example.com" ng-model="req.email">
+                 placeholder="name@example.com" ng-model="req.email" tabindex="2">
           <p class="help-block">
               Optional. If provided, an email will be sent when the results are ready.
           </p>
         </div>
+        <div class="col-md-4 col-lg-2"></div>
       </div>
       <div class="form-group">
-        <div class="col-md-offset-2 col-md-10">
+        <div class="col-md-offset-2 col-md-8 col-lg-offset-2 col-lg-8">
           <button type="submit" class="btn btn-primary btn-lg"
-                  ng-disabled="!req.query || req.query.length < 3">Expanded Search</button>
+                  ng-disabled="!req.query || req.query.length < 3" tabindex="3">Search</button>
+          <p class="text-muted">
+            Please don't abuse the system as it is at a prototype phase at the moment.
+          </p>
         </div>
       </div>
     </form>
-    <div class="alert alert-success" ng-if="success">
-        You request has been submitted. ID: <a ui-sref="result({ qid: qid })"><b>{{ qid }}</b></a>
-    </div>
-    <div class="alert alert-danger" ng-if="error">
-        {{ error }}
-    </div>
+    <h3>Recent Queries</h3>
+    <div ng-if="latest_loading"><i class="fa fa-spinner fa-lg fa-pulse"></i></div>
+    <ul class="list-unstyled">
+        <li ng-repeat="item in latest.items">
+            <a ui-sref="result({ qid: item.qid })">{{ item.query }}</a>
+        </li>
+    </ul>
 </div>

@@ -1,3 +1,8 @@
+.container {
+    margin: 10px auto;
+    max-width: 900px;
+}
+
 .dim {
     position: absolute;
     top: 0;
@@ -18,8 +23,21 @@
     margin-top: -40px;
 }
 
-.scores {
+.faq {
+    margin-top: 30px;
+}
+
+.scores ul {
     padding-top: 15px;
+}
+
+@media (max-width: 980px) {
+    .scores div {
+        text-align: center;
+    }
+    .scores li {
+        display: inline-block;
+    }
 }
 
 .scores li {
