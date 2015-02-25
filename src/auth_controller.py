@@ -136,6 +136,10 @@ class AuthHandler(BaseRequestHandler, SimpleAuthHandler):
             user_attrs.setdefault(*attr)
         return user_attrs
 
+    def handle_exception(self, exception, debug):
+        logging.exception(exception)
+        self.redirect_to('home')
+
 
 class PageHandler(BaseRequestHandler):
 
