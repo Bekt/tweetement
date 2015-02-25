@@ -5,9 +5,10 @@ import re
 import webapp2
 
 from auth_controller import BaseRequestHandler
-from models import (Query, ExpandedQuery, Status, Feedback)
+from models import (Query, Status, Feedback)
 from datetime import datetime
 from google.appengine.api import taskqueue
+from google.appengine.ext import ndb
 from protorpc import messages
 
 EMAIL_RE = re.compile(r'[^@]+@[^@]+\.[^@]+')
@@ -43,7 +44,8 @@ class ApiHandler(BaseRequestHandler):
         if email and EMAIL_RE.match(email) is None:
             self.abort(400, detail='Please specify a valid email.')
         logging.info('Enqueue: {}'.format(query))
-        result = _enqueue(self.auth_info, query=query, email=email)
+        uid = self.user_session['user_id']
+        result = _enqueue(self.auth_info, query=query, email=email, uid=uid)
         self.write({'qid': result.key.id()})
 
     @login_required
@@ -55,7 +57,10 @@ class ApiHandler(BaseRequestHandler):
         qid = int(qid)
         logging.info('Result: {}'.format(qid))
         result = _result(qid)
-        self.write(result)
+        if result:
+            self.write(result)
+        else:
+            self.write_error('Query doesn\'t exist.', 404)
 
     @login_required
     def feedback(self):
@@ -71,6 +76,9 @@ class ApiHandler(BaseRequestHandler):
             if score < -1 or score > 1:
                 self.abort(400, detail='Invalid score.')
             uid = self.user_session['user_id']
+            q = Query.get_by_id(qid)
+            if q is None:
+                raise ValueError()
             f = Feedback.gql('WHERE uid = :1 AND qid = :2 AND sid = :3',
                              uid, qid, sid).get()
             if f is None:
@@ -109,8 +117,8 @@ class ApiHandler(BaseRequestHandler):
 
     def write_error(self, reason, status=400):
         """Writes a JSON response with error code and message."""
-        self.write({'error_message': reason,
-                    'status_code': status}, status=400)
+        self.write({'error_message': reason, 'status_code': status},
+                   status=status)
 
     def handle_exception(self, exception, debug):
         """Handle and log exceptions."""
@@ -118,19 +126,16 @@ class ApiHandler(BaseRequestHandler):
         if isinstance(exception, webapp2.HTTPException):
             self.write_error(exception.message, exception.code)
         else:
-            self.write_error('Uh-ok, something went wrong.', 500)
+            self.write_error('Uh-oh, something went wrong.', 500)
 
 
 def _enqueue(auth_info, **kwargs):
-    token, token_secret = ((auth_info['oauth_token'],
-                           auth_info['oauth_token_secret'])
-                           if auth_info is not None else ('', ''))
     result = Query(**kwargs)
     result.put()
     taskqueue.add(url='/queue/pop', params={
         'qid': result.key.id(),
-        'oauth_token': token,
-        'oauth_token_secret': token_secret,
+        'oauth_token': auth_info.get('oauth_token', ''),
+        'oauth_token_secret': auth_info.get('oauth_token_secret', '')
     })
     return result
 
@@ -138,18 +143,16 @@ def _enqueue(auth_info, **kwargs):
 def _result(qid):
     result = Query.get_by_id(qid)
     if result is not None:
-        d = result.to_dict()
+        d = result.to_dict(exclude={'email', 'uid'})
         d['qid'] = qid
-        if result.status == Status.Done:
-            equery = ExpandedQuery.get_by_id(result.equery)
-            tweets = set(random.sample(equery.basic_results,
-                                       min(4, len(equery.basic_results))))
-            tweets.update(random.sample(equery.hashtag_results,
-                                        min(6, len(equery.hashtag_results))))
-            tweets.update(random.sample(equery.keyword_results,
-                                        min(6, len(equery.keyword_results))))
+        if result.status == Status.Done and result.methods:
+            methods = ndb.get_multi(result.methods)
+            tweets = set()
+            for ind, m in enumerate(methods):
+                # Note: should this be the first 5 or random 5?
+                tweets.update(m.status_ids[:5])
             d['status_ids'] = list(tweets)
-            d['expanded_query'] = equery.to_dict()
+            random.shuffle(d['status_ids'])
         return d
 
 
@@ -161,6 +164,8 @@ def json_encode(obj):
         return obj.name
     if isinstance(obj, (int, long)) and obj >= (1 << 31):
         return str(obj)
+    if isinstance(obj, ndb.Key):
+        return str(obj.id())
     if isinstance(obj, dict):
         return {k: json_encode(v) for k, v in obj.items()}
     if isinstance(obj, (list, tuple)):
