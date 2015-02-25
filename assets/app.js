@@ -67,6 +67,7 @@ angular
     .module('Tweetement')
     .controller('BaseCtrl', ['$scope', function ($scope) {
         $scope.loading = false;
+        $scope.$parent.error_message = null;
     }]);
 
 
@@ -75,26 +76,41 @@ angular
  */
 angular
     .module('Tweetement')
-    .controller('MainCtrl', ['$scope', '$http', function ($scope, $http) {
+    .controller('MainCtrl', ['$scope', '$http', '$state',
+    function ($scope, $http, $state) {
+        $scope.$parent.loading = false;
+        $scope.$parent.error_message = null;
 
         $scope.enqueue = function (request) {
             $scope.$parent.loading = true;
-            $scope.success = null;
-            $scope.error = null;
-            $scope.qid = null;
 
             $http.post('/api/enqueue', request)
                 .success(function (data, status) {
                     $scope.$parent.loading = false;
-                    $scope.success = true;
-                    $scope.qid = data.qid;
+                    $state.go('result', {qid: data.qid});
                 })
                 .error(function (data, status) {
                     $scope.$parent.loading = false;
-                    $scope.error = status === 400 ?
-                        data.error : 'Sorry! There was an unknown problem.';
+                    if (data.error_message) {
+                        $scope.$parent.error_message = data.error_message;
+                    }
                 });
         };
+
+        var init = function () {
+            $scope.latest_loading = true;
+            $http.get('/api/latest')
+                .success(function (data, status) {
+                    $scope.latest_loading = false;
+                    $scope.latest = data;
+                })
+                .error(function (data, status) {
+                    $scope.latest_loading = false;
+                    console.log('Couldn\'t fetch latest queries.');
+                });
+        };
+
+        init();
     }]);
 
 
@@ -105,6 +121,9 @@ angular
     .module('Tweetement')
     .controller('ResultCtrl', ['$scope', '$http', '$stateParams', '$timeout',
     function ($scope, $http, $stateParams, $timeout) {
+        $scope.$parent.loading = false;
+        $scope.$parent.error_message = null;
+
         $scope.qid = $stateParams.qid;
         $scope.scores = {};
 
@@ -121,6 +140,9 @@ angular
                 })
                 .error(function (data, status) {
                     $scope.scores[sid] = undefined;
+                    if (data.error_message) {
+                        $scope.$parent.error_message = data.error_message;
+                    }
                 });
         };
 
@@ -131,28 +153,31 @@ angular
                 .success(function (data, status) {
                     $scope.$parent.loading = false;
                     $scope.data = data;
-                    if (data.status == 'Working') {
+                    if (data.status == 'Working' || data.status == 'Pending') {
                         $timeout(function () {
                             getResults(qid);
-                        }, 4000);
+                        }, 5000);
                     }
                 })
                 .error(function (data, status) {
                     $scope.$parent.loading = false;
-                    console.log(data);
+                    if (data.error_message) {
+                        $scope.$parent.error_message = data.error_message;
+                    }
                 });
         };
 
         var getScores = function (qid) {
             $http.get('/api/scores', {params: {qid: qid}})
                 .success(function (data, status) {
-                    console.log(data);
                     angular.forEach(data['items'], function (v) {
                         $scope.scores[v.sid] = v.score;
                     });
                 })
                 .error(function (data, status) {
-                    console.log(data);
+                    if (data.error_message) {
+                        $scope.$parent.error_message = data.error_message;
+                    }
                 });
         };
 

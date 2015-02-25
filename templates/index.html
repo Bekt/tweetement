@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
   <title>Tweetement</title>
   <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
   <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
@@ -17,8 +17,14 @@
     <div class="row">
       <div class="col-md-12">
 
+      <div ng-if="error_message" class="alert alert-danger text-center">
+      {% raw %}
+        <strong>{{ error_message }}</strong>
+      {% endraw %}
+      </div>
           {% if user %}
             <h2><a href="/#/">Tweetement</a> <small>@{{ user.name }} - <a href="/logout">Log out</a></small></h2>
+            <hr>
             <div ui-view></div>
           {% else %}
             {% include "welcome.html" %}
