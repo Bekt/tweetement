@@ -90,6 +90,17 @@ class ApiHandler(BaseRequestHandler):
         fs = Feedback.gql('WHERE uid = :1 AND qid = :2', uid, qid).fetch()
         self.write({'items': [f.to_dict() for f in fs]})
 
+    def latest(self):
+        """Retrieves the latest queries."""
+        queries = Query.gql('WHERE status = :1 ORDER BY updated DESC',
+                            Status.Done).fetch(limit=10)
+        qs = []
+        for q in queries:
+            d = q.to_dict(include=['query'])
+            d['qid'] = q.key.id()
+            qs.append(d)
+        self.write({'items': qs})
+
     def write(self, response, status=200):
         """Writes a JSON response."""
         self.response.headers['Content-Type'] = 'application/json'
