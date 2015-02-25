@@ -23,6 +23,8 @@ app = webapp2.WSGIApplication([
                   handler='api_controller.ApiHandler:feedback'),
     webapp2.Route(r'/api/scores', name='scores', methods=['GET'],
                   handler='api_controller.ApiHandler:scores'),
+    webapp2.Route(r'/api/latest', name='latest', methods=['GET'],
+                  handler='api_controller.ApiHandler:latest'),
 
     webapp2.Route(r'/queue/pop', name='pop', methods=['POST'],
                   handler='tqueue.QueueHandler:pop'),
