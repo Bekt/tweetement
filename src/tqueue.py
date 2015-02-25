@@ -3,6 +3,7 @@ import service
 import webapp2
 
 from models import (Query, ExpandedQuery, Status)
+from google.appengine.api import mail
 
 
 class QueueHandler(webapp2.RequestHandler):
@@ -30,8 +31,9 @@ class QueueHandler(webapp2.RequestHandler):
             logging.exception(e.message)
             result.status = Status.Cancelled
             result.status_msg = e.message
-        finally:
-            result.put()
+        result.put()
+        if result.status == Status.Done:
+            notify(qid)
 
 
 def expand_query(qid, auth_info):
@@ -66,3 +68,24 @@ def expand_query(qid, auth_info):
     for r in k2:
         equery.keyword_results.append(r.id)
     equery.put()
+
+
+def notify(qid):
+    result = Query.get_by_id(qid)
+    if not result.email:
+        return
+    message = """
+Expanded search results for "{query}" are available at {url}
+
+Don't forget to provide feedback at the above URL.
+"""
+    try:
+        url = 'http://tweetement.com/#/result/' + str(qid)
+        body = message.format(query=result.query, url=url)
+        mail.send_mail(sender='Tweetement <bekt17@gmail.com>',
+                       to=result.email,
+                       subject='Results for %s are ready' % result.query,
+                       body=body)
+    except Exception as e:
+        # Oh well.
+        logging.exception(e)
