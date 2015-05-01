@@ -1,7 +1,17 @@
 ## Tweetement
-TODO: Write me.
+Tweetement is a web-service that tries to improve search experience on
+Twitter. We take the results retrieved by the original Twitter Search
+query submitted via its REST API, text mine these results, perform query
+expansion via pseudo-relevance feedback with new terms, and display the
+most interesting conversations that are happening now.
 
 Live: http://tweetement.com/ (or http://tweetement0.appspot.com/)
+
+Demo: http://demo.tweetement.com/ (or
+http://demo.tweetement0.appspot.com/)
+
+Project details: http://uaf57924.ddns.uark.edu/?page\_id=249/ and
+http://bit.ly/kb-thesis/
 
 ## Development
 ### Requirements
@@ -17,7 +27,8 @@ pip install -t lib/pip/ -r requirements.txt
 ```
 
 ### Update Credentials
-* Follow instructions in `credentials.txt`.
+* You need to have a Twitter app registered. Once you have a registerd
+  app, follow instructions in `credentials.txt`.
 
 ### Run Locally
 At this point, everything should be ready to go. To run the web service
@@ -43,7 +54,7 @@ http://localhost:8000/datastore
 ### Frontend
 * The frontend is written in [AngularJS](https://angularjs.org/) +
   [Bootstrap](http://getbootstrap.com/).
-* See `index.html` and `assets/`.
+* See `templates/` and `assets/`.
 
 ### Backend
 High overview of the flow:
@@ -54,5 +65,3 @@ High overview of the flow:
   created and query expansion is performed (`tqueue.expand_query()`) by
 calling Twitter Search API multiple times.
 
-## License
-TODO: Figure out what is an appropriate license type for this project.
