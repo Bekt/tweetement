@@ -10,8 +10,8 @@ Live: http://tweetement.com/ (or http://tweetement0.appspot.com/)
 Demo: http://demo.tweetement.com/ (or
 http://demo.tweetement0.appspot.com/)
 
-Project details: http://uaf57924.ddns.uark.edu/?page\_id=249/ and
-http://bit.ly/kb-thesis/
+Project details: http://uaf57924.ddns.uark.edu/?page_id=249 and
+http://bit.ly/kb-thesis
 
 ## Development
 ### Requirements
