@@ -1,43 +1,26 @@
 <div ng-if="data">
-    <h3><span class="text-muted">Results for</span> "{{ data.query }}"</h3>
     <div ng-if="data.status == 'Pending' || data.status == 'Working'">
         <p class="lead">
             Please wait while your query is being executed. It may take up to 3 minutes to finish.
             The page will be automatically refreshed when it is ready.
         </p>
+        Debug info for demo purposes:
+        <pre>{{ data | json }}</pre>
     </div>
-    <div ng-if="data.status_ids">
-        <p class="lead">
-            Please provide feedback on how interesting the following tweets are to the query. <br/>
-            Note that the order of the results are in random order.
-        </p>
-    </div>
-    <div ng-if="(data.status == 'Done' && !data.status_ids) || data.status == 'Cancelled'"
+    <div ng-if="(data.status == 'Done' && !data.new) || data.status == 'Cancelled'"
          class="alert alert-info text-center">
         Looks like this query did not return any results.
     </div>
-    <div ng-repeat="sid in data.status_ids" id="status-{{ sid }}" class="scores">
-        <hr/>
-        <div class="row">
-            <div class="col-md-8" tw-status sid="{{ sid }}" align="right"></div>
-            <div class="col-md-4" >
-                <ul class="list-unstyled">
-                    <li>
-                        <button class="btn btn-success" ng-click="feedback(qid, sid, 1)"
-                                ng-disabled="scores[sid] == 1">Interesting</button>
-                    </li>
-                    <li>
-                        <button class="btn btn-default" ng-click="feedback(qid, sid, 0)"
-                                ng-disabled="scores[sid] == 0">Neutral</button>
-                    </li>
-                    <li>
-                        <button class="btn btn-warning" ng-click="feedback(qid, sid, -1)"
-                                ng-disabled="scores[sid] == -1">Not interesting</button>
-                    </li>
-                </ul>
+    <div ng-if="data.status == 'Done' && data.new.length" class="row">
+        <div class="col-md-6">
+            <h3><span class="text-muted">New:</span> {{ data.query + " " + data.keywords[0] }}</h3>
+            <div ng-repeat="sid in data.new track by $index" tw-status sid="{{ sid }}" class="scores">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <h3><span class="text-muted">Original:</span> {{ data.query }}</h3>
+            <div ng-repeat="sid in data.original track by $index" tw-status sid="{{ sid }}" class="scores">
             </div>
         </div>
     </div>
-    Debug info for demo purposes:
-    <pre>{{ data | json }}</pre>
 </div>

@@ -141,6 +141,8 @@ def _enqueue(auth_info, **kwargs):
 
 
 def _result(qid):
+    if True:
+        return _result_demo(qid)
     result = Query.get_by_id(qid)
     if result is not None:
         d = result.to_dict(exclude={'email', 'uid'})
@@ -153,6 +155,21 @@ def _result(qid):
                 tweets.update(m.status_ids[:5])
             d['status_ids'] = list(tweets)
             random.shuffle(d['status_ids'])
+        return d
+
+
+def _result_demo(qid):
+    result = Query.get_by_id(qid)
+    if result is not None:
+        d = result.to_dict(exclude={'email', 'uid'})
+        d['qid'] = qid
+        if result.status == Status.Done and result.methods:
+            methods = ndb.get_multi(result.methods)
+            for m in methods:
+                if m.version == 0:
+                    d['original'] = m.status_ids[:5]
+                if m.version == 2:
+                    d['new'] = m.status_ids[:5]
         return d
 
 
