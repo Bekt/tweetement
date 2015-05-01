@@ -22,7 +22,7 @@ class Method(ndb.Model):
 class Query(ndb.Model):
     """Query details."""
     query = ndb.StringProperty()
-    uid = ndb.IntegerProperty(indexed=False)
+    uid = ndb.IntegerProperty()
     email = ndb.StringProperty(indexed=False)
     created = ndb.DateTimeProperty(auto_now_add=True, indexed=False)
     updated = ndb.DateTimeProperty(auto_now=True)
